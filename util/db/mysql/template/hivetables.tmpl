@@ -1,0 +1,6 @@
+CREATE TABLE {{table.name}} (
+{%- for column in table.columns -%}
+    {{column.name}} {{column.type}}
+    {%- if not loop.last %}, {% endif -%}
+{%- endfor -%}
+) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\t' STORED AS TEXTFILE;
