@@ -20,7 +20,7 @@ def make_session(connection_string):
 def print_html_doc(data):
     current_dir = dirname(abspath(__file__))
     j2_env = Environment(loader=FileSystemLoader(current_dir), trim_blocks=True)
-    output = j2_env.get_template('template/modeltable.tmpl').render(data)
+    output = j2_env.get_template('template/field.tmpl').render(data)
     print(output)
 
 """
@@ -28,7 +28,7 @@ def print_html_doc(data):
 """
 if __name__ == '__main__':
 
-    server = "mysql+mysqlconnector://root:root@localhost:3306/tjdev?charset=utf8"
+    server = "mysql+mysqlconnector://root:root@localhost:3306/sampledata?charset=utf8"
     source, sengine = make_session(server)
     smeta = MetaData(bind=sengine)
     smeta.reflect(sengine)

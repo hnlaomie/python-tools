@@ -1,5 +1,5 @@
-<field name="度量" type="GROUP">
+<table name="{{table.name}}" dbName="{{table.name}}">
 {% for column in table.columns %}
-    <field name="{{column.name}}" tableName="{{table.name}}" columnName="{{column.name}}" type="MEASURE" dataType="{{column.type}}" formatType="PERCENT"/>
+    <column name="{{column.name}}" dbName="{{column.name}}"/>
 {% endfor %}
-</field>
+</table>
