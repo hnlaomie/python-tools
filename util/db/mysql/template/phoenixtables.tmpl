@@ -1,0 +1,8 @@
+DROP TABLE IF EXISTS dm.yg_{{table.name}};
+CREATE TABLE dm.yg_{{table.name}} (
+{%- for column in table.columns %}
+    {{column.name}} {{column.type}}
+    {%- if not loop.last %}, {% endif %}
+
+{% endfor -%}
+);

@@ -1,0 +1,6 @@
+INSERT OVERWRITE DIRECTORY '/tmp/dm.yg_{{table.name}}.csv' SELECT
+ {%- for column in table.columns -%}
+    {{column.name}}
+    {%- if not loop.last %}, {% endif -%}
+{%- endfor %} FROM {{table.name}};
+

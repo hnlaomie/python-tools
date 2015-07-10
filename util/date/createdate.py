@@ -5,7 +5,7 @@ from datetime import datetime
 from datetime import timedelta
 
 def createDate(startDate, addDays):
-    file = "/home/laomie/date-hour.txt"
+    file = "/home/laomie/dm.yg_datetime.csv"
     fromDate = datetime.strptime(startDate, "%Y-%m-%d")
 
     # 写入新数据
@@ -16,10 +16,10 @@ def createDate(startDate, addDays):
             for hour in range(0, 24):
                 hourDate = toDate + timedelta(hours=hour)
                 data = []
-                data.append(hourDate.strftime('%Y-%m-%d-%H'))
+                data.append(hourDate.strftime('%Y-%m-%d %H:%M:%S'))
                 data.append(hourDate.year)
                 data.append(hourDate.month)
-                data.append(hourDate.day)
+                data.append(hourDate.strftime('%Y-%m-%d'))
                 data.append(hourDate.hour)
                 writer.writerow(data)
 

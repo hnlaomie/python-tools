@@ -4,7 +4,7 @@ from jinja2 import Environment, FileSystemLoader
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from util.db.mysql.typeconverter import mysql_to_hive
+from util.db.mysql.typeconverter import mysql_to_phoenix
 
 class TableInfo(object):
     pass
@@ -20,7 +20,7 @@ def make_session(connection_string):
 def print_html_doc(data):
     current_dir = dirname(abspath(__file__))
     j2_env = Environment(loader=FileSystemLoader(current_dir), trim_blocks=True)
-    output = j2_env.get_template('template/field.tmpl').render(data)
+    output = j2_env.get_template('template/hiveselect.tmpl').render(data)
     print(output)
 
 """
@@ -41,7 +41,7 @@ if __name__ == '__main__':
         for column in table.columns :
             columnInfo = ColumnInfo()
             columnInfo.name = column.name
-            columnInfo.type = mysql_to_hive(column.type)
+            columnInfo.type = mysql_to_phoenix(column.type)
             columns.append(columnInfo)
         tableInfo.columns = columns
 
