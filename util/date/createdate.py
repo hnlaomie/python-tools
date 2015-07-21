@@ -16,10 +16,11 @@ def createDate(startDate, addDays):
             for hour in range(0, 24):
                 hourDate = toDate + timedelta(hours=hour)
                 data = []
-                data.append(hourDate.strftime('%Y-%m-%d %H:%M:%S'))
+                #data.append(hourDate.strftime('%Y-%m-%d %H:%M:%S'))
+                data.append(hourDate.strftime('%Y%m%d%H'))
                 data.append(hourDate.year)
                 data.append(hourDate.month)
-                data.append(hourDate.strftime('%Y-%m-%d'))
+                data.append(hourDate.strftime('%Y-%m-%d %H:%M:%S'))
                 data.append(hourDate.hour)
                 writer.writerow(data)
 
