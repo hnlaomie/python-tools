@@ -6,6 +6,10 @@ from datetime import timedelta
 
 
 def create_data(row_count, start_date):
+    # 测试数据设置
+    game_count = 1000
+    user_count = 100000
+
     # 保存作成的数据
     row_datas = []
     base_date = datetime.strptime(start_date, "%Y-%m-%d")
@@ -21,11 +25,11 @@ def create_data(row_count, start_date):
         login_date = base_date + timedelta(seconds=add_second)
         row_data.append(login_date.strftime('%Y-%m-%d %H:%M:%S'))
         # 游戏ID
-        app_id = random.randint(1, 100)
+        app_id = random.randint(1, game_count)
         row_data.append(app_id)
         row_data.append(app_id)
         # 用户
-        uuid = random.randint(1, 100000)
+        uuid = random.randint(1, user_count)
         user = 'user-' + str(uuid)
         row_data.append(user)
         row_data.append(1)
