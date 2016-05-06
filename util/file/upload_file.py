@@ -23,10 +23,10 @@ def upload_files(local_path: str, remote_path: str):
     :return:
     """
 
-    sftp_server = "121.197.0.100"
+    sftp_server = "192.168.11.1"
     sftp_port = 22
-    sftp_user = "adwo"
-    sftp_password = "67xG2dBs"
+    sftp_user = "abc"
+    sftp_password = "abc"
 
     server = paramiko.Transport((sftp_server, sftp_port))
     server.connect(username=sftp_user, password=sftp_password)
