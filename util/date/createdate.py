@@ -13,15 +13,19 @@ def createDate(startDate, addDays):
         writer = csv.writer(csv_output, quotechar=',', lineterminator='\n')
         for i in range(0, int(addDays)):
             toDate = fromDate + timedelta(days=i)
-            for hour in range(0, 24):
+            for hour in range(0, 1):
                 hourDate = toDate + timedelta(hours=hour)
                 data = []
                 #data.append(hourDate.strftime('%Y-%m-%d %H:%M:%S'))
-                data.append(hourDate.strftime('%Y%m%d%H'))
+                #data.append(hourDate.strftime('%Y%m%d%H%M%S'))
+                data.append(hourDate.strftime('%Y%m%d'))
                 data.append(hourDate.year)
                 data.append(hourDate.month)
-                data.append(hourDate.strftime('%Y-%m-%d %H:%M:%S'))
-                data.append(hourDate.hour)
+                data.append(hourDate.day)
+                #data.append(hourDate.hour)
+
+                #data.append(hourDate.strftime('%Y-%m-%d %H:%M:%S'))
+                #data.append(hourDate.hour)
                 writer.writerow(data)
 
 """
