@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # -*- coding: utf-8 -*-
 
 import sys, csv, time
@@ -25,8 +26,8 @@ def load_user(user_file):
 
 def data_to_list(result):
     """
-    保存用户行为数据保存到列表
-    :param writer: 用户行为数据
+    用户行为数据保存到列表
+    :param result: 用户行为数据
     :return: 用户行为列表
     """
     action_list = []
@@ -46,16 +47,6 @@ def data_to_list(result):
     return action_list
 
 
-def get_connection():
-    """
-    获取数据库连接
-    :return: 连接
-    """
-    cluster = Cluster(['192.168.1.20'])
-    session = cluster.connect('dsp')
-    return session
-
-
 def load_to_file(user_file, action_file):
     """
     根据给定的用户，从cassandra数据库中读取用户行为数据到文件
@@ -65,11 +56,16 @@ def load_to_file(user_file, action_file):
     """
     sql = "SELECT user_id, log_time, req_id, action_type, platform_id, adv_type_id, adv_id, app_id, city_id, "
     sql = sql + "sdk_id, req_ip, dev_id, network_id "
-    sql = sql + "FROM dsp.user_action WHERE user_id = ?"
+    sql = sql + "FROM user_action WHERE user_id = ?"
 
-    session = get_connection()
+    cluster = Cluster(['192.168.1.20'])
+    session = cluster.connect('dsp')
+
     user_list = load_user(user_file)
-    action_list = []
+    action_list = [
+        ["user_id", "log_time", "req_id", "action_type", "platform_id", "adv_type_id",
+         "adv_id", "app_id", "city_id", "sdk_id", "req_ip", "dev_id", "network_id"]
+    ]
 
     with open(action_file, "w") as csv_output:
         writer = csv.writer(csv_output, delimiter=',', lineterminator='\n')
@@ -94,6 +90,9 @@ def load_to_file(user_file, action_file):
                     action_list.clear()
 
         writer.writerows(action_list)
+
+    session.shutdown()
+    cluster.shutdown()
 
 
 if __name__ == '__main__':

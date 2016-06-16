@@ -6,7 +6,7 @@ def calculate(app_map):
     """
     将媒体每小时展示数进行归一，拟合计算
         归一：小时展示数 / min(小时展示数)
-        拟合：sum(abs(归一值 - 标准值)) / 24
+        拟合：sum(abs(归一值 - 标准值) / 标准值) / 24
     :param app_map: 媒体展示值
     :return: 媒体拟合值
     """
@@ -15,14 +15,27 @@ def calculate(app_map):
     base_data = [61, 32, 12, 4, 1, 5, 14, 40, 60, 70, 88, 89, 92, 85, 71, 63, 65, 91, 99, 100, 92, 91, 77, 57]
 
     for key in app_map.keys():
+        # 拟合值默认为0
+        rate = 0
         pv_data = app_map.get(key)
-        min_pv = min(pv_data)
 
-        sum_rate = 0;
+        sum_pv = 0
+        min_pv = 1000000
         for i in range(0, 24):
-            sum_rate = sum_rate + abs(pv_data[i] / min_pv - base_data[i]) / base_data[i]
+            sum_pv = sum_pv + pv_data[i]
+            if (pv_data[i] > 0):
+                min_pv = min(min_pv, pv_data[i])
 
-        rate = sum_rate / 24
+        # 100以上的展示数才计算拟合值
+        if (sum_pv > 100):
+            sum_rate = 0
+            for i in range(0, 24):
+                abs_data = 0
+                if (pv_data[i] > 0):
+                    abs_data = abs(pv_data[i] / min_pv - base_data[i])
+                sum_rate = sum_rate + abs_data / base_data[i]
+
+            rate = sum_rate / 24
 
         app_rate_map[key] = rate
 
@@ -37,9 +50,13 @@ def get_hour(hour):
 
     return int_hour
 
+def get_key(app_id, platform_id, adv_type_id):
+    key = app_id + "-" + platform_id + "-" + adv_type_id
+    return key
+
 def init_hour_data(pv_hour_file):
     """
-    解析媒体每小时展示数，生成以媒体ＩＤ为键，值为２４小时展示数列表的字典结构
+    解析媒体每小时展示数，生成以"媒体ID-操作系统ID-广告类型ID"为键，值为２４小时展示数列表的字典结构
     """
     app_map = {}
 
@@ -47,19 +64,19 @@ def init_hour_data(pv_hour_file):
         reader = csv.reader(csv_input, delimiter='\t')
 
         for row in reader:
-            app_id = row[0]
-            hour = row[1]
-            pv = row[2]
+            key = get_key(row[0], row[1], row[2])
+            hour = row[3]
+            pv = row[4]
 
             # 初始化２４小时的展示数
-            if (app_map.get(app_id) == None):
+            if (app_map.get(key) == None):
                 pv_data = []
                 for i in range(0, 24):
-                    pv_data.append(1)
-                app_map[app_id] = pv_data
+                    pv_data.append(0)
+                app_map[key] = pv_data
 
             int_hour = get_hour(hour)
-            app_map.get(app_id)[int_hour] = int(pv)
+            app_map.get(key)[int_hour] = int(pv)
 
     return app_map
 
@@ -78,16 +95,16 @@ def append_to_last(table_file, pv_hour_file):
         reader = csv.reader(csv_input, delimiter='\t')
 
         for row in reader:
-            app_id = row[1]
-            rate = app_rate_map.get(app_id)
-            pv_data = app_map.get(app_id)
+            key = get_key(row[2], row[3], row[4])
+            rate = app_rate_map.get(key)
+            pv_data = app_map.get(key)
 
             row.append(rate)
             row.append(pv_data)
             data.append(row)
 
     # 写入新数据
-    with open("/home/laomie/temp/test.csv", "w") as csv_output:
+    with open(table_file, "w") as csv_output:
         writer = csv.writer(csv_output, delimiter='\t', lineterminator='\n')
         writer.writerows(data)
 
@@ -98,10 +115,10 @@ def append_to_last(table_file, pv_hour_file):
 倒数第２列为每小时展示数列表，最后一列为拟合值。
 
 table_file: 媒体统计文件
-date_id, app_id, ... ,
+null, date_id, app_id, platform_id, adv_type_id, ... ,
 
 pv_hour_file: 媒体美小时展示数文件
-app_id, hour, pv
+app_id, platform_id, adv_type_id, hour, pv
 """
 if __name__ == '__main__':
     if (len(sys.argv) > 2):
