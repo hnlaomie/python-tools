@@ -104,7 +104,7 @@ def append_to_last(table_file, pv_hour_file):
             data.append(row)
 
     # 写入新数据
-    with open(table_file, "w") as csv_output:
+    with open("/home/laomie/test.csv", "w") as csv_output:
         writer = csv.writer(csv_output, delimiter='\t', lineterminator='\n')
         writer.writerows(data)
 

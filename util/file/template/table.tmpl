@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Adwo Report</title>
+
+<style type="text/css">
+body {
+	margin-top: 0px;
+	margin-bottom: 0px;
+}
+
+table.hovertable {
+	font-family: verdana,arial,sans-serif;
+	font-size:11px;
+	color:#333333;
+	border-width: 1px;
+	border-color: #999999;
+	border-collapse: collapse;
+}
+
+table.hovertable td {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #a9c6c9;
+}
+
+.even{
+	background-color: #FDFDFD;
+	color: #2C2C2C;
+}
+
+.odd{
+	background-color: #DFFFFF;
+	color: #202020;
+}
+</style>
+
+</head>
+
+<body>
+    <table class="hovertable" width="80%" align="center">
+{% for row in table %}
+    <tr class="{{ loop.cycle('even', 'odd') }}">
+{% for value in row %}
+        <td>{{value}}</td>
+{% endfor %}
+    </tr>
+{% endfor %}
+    </table>
+</body>
+</html>
