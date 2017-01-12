@@ -6,7 +6,6 @@ from datetime import datetime
 from cassandra.cluster import Cluster, Session, ResultSet
 from cassandra.concurrent import execute_concurrent
 
-
 def load_user(user_file: str) -> []:
     """
     从用户文件载入用户ID
@@ -26,6 +25,13 @@ def load_user(user_file: str) -> []:
     return user_list
 
 def load_partition_data(user_list: [], session, select_statement) -> []:
+    '''
+    载入部分用户的标签
+    :param user_list:
+    :param session:
+    :param select_statement:
+    :return:
+    '''
     data_list = []
 
     statements_and_params = []
@@ -34,40 +40,14 @@ def load_partition_data(user_list: [], session, select_statement) -> []:
         statements_and_params.append((select_statement, params))
 
     results = execute_concurrent(
-        session, statements_and_params, raise_on_first_error=False)
+        session, statements_and_params, concurrency=100, raise_on_first_error=False)
 
     for (success, result) in results:
         if not success:
             print("查询报错")
         else:
-            print(result[0])
-
-def load_data(user_list: []) -> []:
-    '''
-    连接cassandra查询数据
-    :param user_list: 用户列表
-    :return: 用户标签
-    '''
-    data_list = []
-
-    sql = "SELECT user_id, tag_id FROM user_tags"
-    sql = sql + " WHERE user_id=%s"
-
-    cluster = Cluster(['192.168.1.20'])
-    session = cluster.connect('dmp')
-    futures = []
-
-    for user_id in user_list:
-        futures.append(session.execute_async(sql, (user_id,)))
-
-    # wait for them to complete and use the results
-    for future in futures:
-        rows = future.result()
-        for row in rows:
-            data_list.append([row.user_id, str(row.tag_id)])
-
-    session.shutdown()
-    cluster.shutdown()
+            for row in result:
+                data_list.append([row.user_id, str(row.tag_id)])
 
     return data_list
 
@@ -78,15 +58,37 @@ def load_to_file(user_file, out_file):
     :param out_file: 用户标签文件
     :return:
     """
-    row_count = 0
     user_list = load_user(user_file)
+
+    sql = "SELECT user_id, tag_id FROM user_tags"
+    sql = sql + " WHERE user_id=?"
+
+    cluster = Cluster(['192.168.11.52'])
+    session = cluster.connect('dmp')
+    select_statement = session.prepare(sql)
 
     with open(out_file, "w") as csv_output:
         writer = csv.writer(csv_output, delimiter=',', lineterminator='\n')
-        data_list = load_data(user_list)
-        if data_list is not None:
-            print("写入" + str(len(data_list)) + "行记录")
-            writer.writerows(data_list)
+
+        # 拆分用户，太多用户返回的标签可能太大，列表放不下
+        user_temp_list = []
+        for user in user_list:
+            user_temp_list.append(user)
+            if (len(user_temp_list) >= 2):
+                data_list = load_partition_data(user_temp_list, session, select_statement)
+                if data_list is not None:
+                    print("写入" + str(len(data_list)) + "行记录")
+                    writer.writerows(data_list)
+                    user_temp_list.clear()
+
+        if (len(user_temp_list) > 0):
+            data_list = load_partition_data(user_temp_list, session, select_statement)
+            if data_list is not None:
+                print("最后写入" + str(len(data_list)) + "行记录")
+                writer.writerows(data_list)
+
+    session.shutdown()
+    cluster.shutdown()
 
 if __name__ == '__main__':
     """

@@ -1,0 +1,9 @@
+mysql --default-character-set=utf8 -N -h192.168.11.82 -ubidev -pbidev -Ddw_yingguang -e "select {% for column in table.columns -%}
+    {{column.name}}
+    {%- if not loop.last %}, {% endif -%}
+{%- endfor %} from {{table.name}};" > {{table.name}}.csv
+PGPASSWORD=bidev psql -F $'\t' -h 192.168.11.83 -U dw_yingguang adwo -c "\copy {{table.name}} (
+{%- for column in table.columns -%}
+    {{column.name}}
+    {%- if not loop.last %}, {% endif -%}
+{%- endfor %})  from '{{table.name}}.csv'"
