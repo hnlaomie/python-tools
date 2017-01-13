@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>数据验证</title>
+    <style type="text/css">
+        body {
+            font: normal 11px;
+            color: #4f6b72;
+            background: #E6EAE9;
+        }
+
+        #mytable {
+            width: 60%;
+            padding: 0;
+            margin: 0;
+            font-size: 12px;
+        }
+
+        th {
+            color: #4f6b72;
+            border-right: 1px solid #C1DAD7;
+            border-bottom: 1px solid #C1DAD7;
+            border-top: 1px solid #C1DAD7;
+            text-transform: uppercase;
+            text-align: left;
+            padding: 6px 6px 6px 6px;
+            background: #CAE8EA;
+        }
+
+        td {
+            border-right: 1px solid #C1DAD7;
+            border-bottom: 1px solid #C1DAD7;
+            padding: 6px 6px 6px 6px;
+            color: #4f6b72;
+        }
+
+        tr:nth-child(even) {
+            background: #FFF;
+        }
+        tr:nth-child(odd) {
+            background: #F5FAFA;
+        }
+
+        td.alt {
+            background: #d0e1f3;
+            color: red;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+    </style>
+</head>
+<body>
+    <p>{{dsp_data.date}}实时数据与离线数据验证结果(<font color="red">红色表示异常</font>)</p>
+    <table id="mytable" cellspacing="0">
+    <tbody>
+        <tr>
+            <th width="4%" rowspan="2">小时</th>
+            <th colspan="4">实时（ＤＳＰ）</th>
+            <th colspan="4">离线（ＤＳＰ）</th>
+        </tr>
+        <tr>
+            <th width="12%">竞标</th>
+            <th width="12%">中标</th>
+            <th width="12%">展示</th>
+            <th width="12%">点击</th>
+            <th width="12%">竞标</th>
+            <th width="12%">中标</th>
+            <th width="12%">展示</th>
+            <th width="12%">点击</th>
+        </tr>
+        {% for row in dsp_data.rows -%}
+        <tr>
+            <td>{{row.hour}}</td>
+            <td {%- if row.bid_pgsql != row.bid_hive %} class="alt" {% endif -%}> {{"{:,d}".format(row.bid_pgsql)}} </td>
+            <td {%- if row.win_pgsql != row.win_hive %} class="alt" {% endif -%}> {{"{:,d}".format(row.win_pgsql)}} </td>
+            <td {%- if row.show_pgsql != row.show_hive %} class="alt" {% endif -%}> {{"{:,d}".format(row.show_pgsql)}} </td>
+            <td {%- if row.click_pgsql != row.click_hive %} class="alt" {% endif -%}> {{"{:,d}".format(row.click_pgsql)}} </td>
+            <td>{{"{:,d}".format(row.bid_hive)}}</td>
+            <td>{{"{:,d}".format(row.win_hive)}}</td>
+            <td>{{"{:,d}".format(row.show_hive)}}</td>
+            <td>{{"{:,d}".format(row.click_hive)}}</td>
+        </tr>
+        {%- endfor %}
+    </tbody>
+    </table>
+
+    <br><br>
+
+    <table id="mytable" cellspacing="0">
+    <tbody>
+        <tr>
+            <th width="4%" rowspan="2">小时</th>
+            <th colspan="3">实时（硬广）</th>
+            <th colspan="3">离线（硬广）</th>
+        </tr>
+        <tr>
+            <th width="16%">请求</th>
+            <th width="16%">展示</th>
+            <th width="16%">点击</th>
+            <th width="16%">请求</th>
+            <th width="16%">展示</th>
+            <th width="16%">点击</th>
+        </tr>
+        {% for row in yg_data.rows -%}
+        <tr>
+            <td>{{row.hour}}</td>
+            <td {%- if row.request_pgsql != row.request_hive %} class="alt" {% endif -%}>{{"{:,d}".format(row.request_pgsql)}}</td>
+            <td {%- if row.show_pgsql != row.show_hive %} class="alt" {% endif -%}>{{"{:,d}".format(row.show_pgsql)}}</td>
+            <td {%- if row.click_pgsql != row.click_hive %} class="alt" {% endif -%}>{{"{:,d}".format(row.click_pgsql)}}</td>
+            <td>{{"{:,d}".format(row.request_hive)}}</td>
+            <td>{{"{:,d}".format(row.show_hive)}}</td>
+            <td>{{"{:,d}".format(row.click_hive)}}</td>
+        </tr>
+        {%- endfor %}
+    </tbody>
+    </table>
+</body>
+</html>
