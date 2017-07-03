@@ -109,15 +109,15 @@ def reload_activate_proxies(conn: Connection, data_list: []):
     """
     载入活跃代理，载入前先清空数据
     :param conn: 数据连接
-    :param data_list: 代理列表，格式为：[(proxy1, response_time1),(proxy2, response_time2),...(proxyn, response_timen)]
+    :param data_list: 代理列表，格式为：[(proxy1, response_time1, test_time1, test_xp1),...,(proxyn, response_timen, test_timen, test_xpn)]
     :return:
     """
     delete_sql = ''' 
         DELETE FROM activate_proxies
     '''
     insert_sql = ''' 
-        INSERT INTO activate_proxies (proxy, response_time, insert_date)
-        VALUES (?, ?, datetime('now', 'localtime'))
+        INSERT INTO activate_proxies (proxy, response_time, test_time, test_xp, insert_date)
+        VALUES (?, ?, ?, ?, datetime('now', 'localtime'))
     '''
 
     cur = conn.cursor()
@@ -132,7 +132,7 @@ def all_activate_proxies(conn: Connection) -> []:
     :return: List([proxy])
     """
     select_sql = '''
-        SELECT a.proxy from activate_proxies a
+        SELECT a.proxy, a.test_time, a.test_xp from activate_proxies a
         LEFT JOIN disable_proxies b ON a.proxy = b.proxy
         WHERE b.proxy is NULL
         ORDER BY a.response_time DESC
@@ -221,7 +221,7 @@ def load_imei(conn: Connection) -> []:
         FROM tac_info
         WHERE status = 1
         ORDER BY user_count DESC
-        LIMIT 16
+        LIMIT 20 
     '''
     rows = exec_select(conn, select_sql)
     return rows

@@ -15,29 +15,30 @@ import random
 from time import time, sleep, localtime, strftime
 from gevent.pool import Pool
 from util.spider.freeproxy.proxy import fetch_proxies
-from util.spider.freeproxy.commons import _headers, _user_agents, _executable_path, _sleep_time
+from util.spider.freeproxy.commons import _headers, _user_agents, _sleep_time
 from util.spider.freeproxy.db_utils import _clawer_db, create_connection, upsert_proxy, reload_activate_proxies, all_proxy
 
 
-def validate_proxies(proxies: [], timeout=15) -> []:
+def validate_proxies(proxies: [], timeout=40) -> []:
     """
     Test proxies, or process html source using callback in the meantime.
 
     :type proxies: list
     :param proxies:  proxies
     :param timeout: response timeout
-    :return: [(proxy1, response_time1), (proxy2, response_time2),...,(proxyn, response_timen)]
+    :return: [(proxy1, response_time1, start_time1, xp1), ... ,(proxyn, response_timen, start_timen, xpn)]
     """
     test_url = 'http://www.imeidb.com/#lookup'
     result = []
     proxies = set(proxies)
     errors = set()
-    pool = Pool(100)
+    pool = Pool(50)
 
     def load(proxy):
         code = None
+        xp = ''
         is_success = False
-        sleep(random.uniform(0, 0.1))
+        #sleep(random.uniform(0, 0.1))
 
         start_time = time()
         str_time = strftime('%Y-%m-%d %H:%M:%S', localtime(start_time))
@@ -52,8 +53,9 @@ def validate_proxies(proxies: [], timeout=15) -> []:
                 code = res.status_code
                 source = res.text
                 #welcome = re.findall('(<h1>欢迎来到IMEIdb</h1>)', source)
-                xp = re.findall('input type="hidden" name="xp" value="(.*?)"', source)
-                if len(xp) > 0:
+                xp_list = re.findall('input type="hidden" name="xp" value="(.*?)"', source)
+                if len(xp_list) > 0:
+                    xp = xp_list[0]
                     is_success = True
 
             if code != 200:
@@ -67,14 +69,14 @@ def validate_proxies(proxies: [], timeout=15) -> []:
 
         if code == 200 and is_success:
             escaped = end_time - start_time
-            result.append((proxy, round(escaped, 2)))
+            result.append((proxy, round(escaped, 2), str(start_time), xp))
 
     index = 0
     for proxy in proxies:
         pool.spawn(load, proxy)
         index += 1
-        if index % 100 == 0:
-            sleep(random.uniform(int(_sleep_time / 8), int(_sleep_time / 4)))
+        if index % 50 == 0:
+            sleep(random.uniform(int(_sleep_time / 4), int(_sleep_time / 2)))
     pool.join()
 
     proxies = proxies - errors
@@ -87,6 +89,7 @@ def load_from_web():
     web_proxies = fetch_proxies()
     proxies = validate_proxies(web_proxies)
     proxy_list = [l[0:1] for l in proxies]
+
     # 将代理写入数据库
     conn = create_connection(_clawer_db)
     with conn:

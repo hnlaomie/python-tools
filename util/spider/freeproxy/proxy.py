@@ -41,8 +41,8 @@ def from_cool_proxy():
     :return:
     """
     proxies = []
-    base = 'http://www.cool-proxy.net/proxies/http_proxy_list/sort:score/direction:desc/page:{:d}'
-    urls = [base.format(i) for i in range(1, 21)]
+    base = 'http://www.cool-proxy.net/proxies/http_proxy_list/country_code:/port:/anonymous:1/page:{:d}'
+    urls = [base.format(i) for i in range(1, 16)]
 
     proxies = []
     for url in urls:
@@ -65,11 +65,11 @@ def from_cool_proxy():
 
 def from_proxydb():
     """
-    From "http://proxydb.net/?protocol=http&availability=50&response_time=10&offset=0"
+    From "http://proxydb.net/?protocol=http&anonlvl=4&availability=30&response_time=30&offset=0"
     :return:
     """
-    base = 'http://proxydb.net/?protocol=http&availability=50&response_time=10&offset={:d}'
-    urls = [base.format(i * 15) for i in range(0, 33)]
+    base = 'http://proxydb.net/?protocol=http&anonlvl=4&availability=30&response_time=30&offset={:d}'
+    urls = [base.format(i * 15) for i in range(0, 17)]
 
     proxies = []
     for url in urls:
@@ -91,7 +91,7 @@ def from_xici_daili():
     :return:
     """
     base = 'http://www.xicidaili.com/wt/{:d}'
-    urls = [base.format(i) for i in range(1, 201)]
+    urls = [base.format(i) for i in range(1, 51)]
     """
     urls = [
         'http://www.xicidaili.com/nt/1',
@@ -115,7 +115,8 @@ def from_xici_daili():
             res = _safe_http(url)
             data = re.findall('<td>(\d+\.\d+\.\d+\.\d+)</td>.*?<td>(\d+)</td>.*?<td.*?>(高匿|透明)</td>.*?', res, re.DOTALL)
             for (host, port, type) in data:
-                proxies += ['{:s}:{:s}'.format(host, port)]
+                if (type == '高匿'):
+                    proxies += ['{:s}:{:s}'.format(host, port)]
         except Exception as e:
             print(e)
 
@@ -127,10 +128,8 @@ def fetch_proxies():
     Get latest proxies from above sites.
     """
     functions = [
-        from_cyber_syndrome,
-        from_proxydb,
-        from_xici_daili,
         from_cool_proxy,
+        from_proxydb,
     ]
 
     proxies = []
@@ -154,3 +153,24 @@ def fetch_proxies():
     return proxies
 
 #fetch_proxies()
+
+"""
+https://hidemy.name/en/proxy-list/?type=h&anon=4#list
+https://hidemy.name/en/proxy-list/?type=h&anon=4&start=64#list
+
+<td class=tdl>47.90.204.6</td><td>8080</td>
+
+https://premproxy.com/list/01.htm
+
+<td>139.59.174.207:8118</td><td>high-anonymous </td>
+
+http://rebro.weebly.com/txt-lists.html
+
+<a href="/uploads/2/7/3/7/27378307/rebroproxy-100-103221072014.txt">
+
+http://list.proxylistplus.com/Fresh-HTTP-Proxy-List-1
+
+
+http://www.gatherproxy.com/proxylist/anonymity/?t=Elite#1
+https://www.proxynova.com/proxy-server-list/elite-proxies/
+"""
