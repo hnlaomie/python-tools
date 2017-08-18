@@ -1,0 +1,26 @@
+// dsp ctr 预估接口
+
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.adwo.grpc";
+option java_outer_classname = "DSPCtrPredictProto";
+option objc_class_prefix = "DCP";
+
+package com.adwo.grpc;
+
+// dsp ctr 预估服务
+service DSPCtr {
+  // 预估接口
+  rpc Predict (InputRequest) returns (OutputReply) {}
+}
+
+// 预估输入数据
+message InputRequest {
+  string data = 1;
+}
+
+// 预估结果
+message OutputReply {
+  string result = 1;
+}

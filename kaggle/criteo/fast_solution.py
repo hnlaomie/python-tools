@@ -14,7 +14,7 @@ as the name is changed.
  0. You just DO WHAT THE FUCK YOU WANT TO.
 '''
 
-
+import pickle
 from datetime import datetime
 from csv import DictReader
 from math import exp, log, sqrt
@@ -22,8 +22,8 @@ from math import exp, log, sqrt
 
 # parameters #################################################################
 
-train = '/home/laomie/train.csv'  # path to training file
-test = '/home/laomie/test.csv'  # path to testing file
+train = '/home/laomie/projects/python/data/criteo_train.csv'  # path to training file
+test = '/home/laomie/projects/python/data/criteo_test.csv'  # path to testing file
 
 D = 2 ** 20   # number of weights use for learning
 alpha = .1    # learning rate for sgd optimization
@@ -123,6 +123,12 @@ for t, row in enumerate(DictReader(open(train), delimiter=',', lineterminator='\
 
     # step 3, update model with answer
     w, n = update_w(w, n, x, p, y)
+
+    '''
+    with open('/home/laomie/train_fun.csv', 'wb') as f:
+        pickle.dump(w, f)
+        #train_w = pickle.load(train_file)
+    '''
 
 # testing (build kaggle's submission file)
 with open('/home/laomie/submission1234.csv', 'w') as submission:

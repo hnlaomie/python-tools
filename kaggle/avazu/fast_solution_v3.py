@@ -29,9 +29,9 @@ from math import exp, log, sqrt
 ##############################################################################
 
 # A, paths
-train = 'train_rev2'               # path to training file
-test = 'test_rev2'                 # path to testing file
-submission = 'submission1234.csv'  # path of to be outputted submission file
+train = '/home/laomie/projects/python/data/avazu_train.csv'               # path to training file
+test = '/home/laomie/projects/python/data/avazu_test.csv'                 # path to testing file
+submission = '/home/laomie/submission1234.csv'  # path of to be outputted submission file
 
 # B, model
 alpha = .1  # learning rate
@@ -40,12 +40,13 @@ L1 = 1.     # L1 regularization, larger value means more regularized
 L2 = 1.     # L2 regularization, larger value means more regularized
 
 # C, feature/hash trick
-D = 2 ** 20             # number of weights to use
+#D = 2 ** 20             # number of weights to use
+D = 2 ** 4             # number of weights to use
 interaction = False     # whether to enable poly2 feature interactions
 
 # D, training/validation
 epoch = 1       # learn training data for N passes
-holdafter = 9   # data after date N (exclusive) are used as validation
+holdafter = 26   # data after date N (exclusive) are used as validation
 holdout = None  # use every N training instance for holdout validation
 
 
@@ -103,8 +104,8 @@ class ftrl_proximal(object):
             L = len(x)
 
             x = sorted(x)
-            for i in xrange(L):
-                for j in xrange(i+1, L):
+            for i in range(L):
+                for j in range(i+1, L):
                     # one-hot encode interactions with hash trick
                     yield abs(hash(str(x[i]) + '_' + str(x[j]))) % D
 
@@ -253,7 +254,7 @@ start = datetime.now()
 learner = ftrl_proximal(alpha, beta, L1, L2, D, interaction)
 
 # start training
-for e in xrange(epoch):
+for e in range(epoch):
     loss = 0.
     count = 0
 

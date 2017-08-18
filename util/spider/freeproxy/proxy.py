@@ -122,14 +122,35 @@ def from_xici_daili():
 
     return proxies
 
+def from_premproxy():
+    """
+    From "https://premproxy.com/list/01.htm"
+    :return:
+    """
+    proxies = []
+    base = 'https://premproxy.com/list/{:02d}.htm'
+    urls = [base.format(i) for i in range(1, 3)]
+
+    proxies = []
+    for url in urls:
+        print("load " + url)
+        sleep(random.uniform(int(_sleep_time / 2), _sleep_time))
+
+        try:
+            res = _safe_http(url)
+            proxies += re.findall('(\d+\.\d+\.\d+\.\d+:\d+)</td><td.*?>elite </td>', res)
+        except Exception as e:
+            print(e)
+
+    return proxies
+
 
 def fetch_proxies():
     """
     Get latest proxies from above sites.
     """
     functions = [
-        from_cool_proxy,
-        from_proxydb,
+        from_premproxy,
     ]
 
     proxies = []
@@ -149,20 +170,16 @@ def fetch_proxies():
                     proxies += db_proxy
         except Exception as e:
             print(e)
-
+    print(proxies)
     return proxies
 
-#fetch_proxies()
+fetch_proxies()
 
 """
 https://hidemy.name/en/proxy-list/?type=h&anon=4#list
 https://hidemy.name/en/proxy-list/?type=h&anon=4&start=64#list
 
 <td class=tdl>47.90.204.6</td><td>8080</td>
-
-https://premproxy.com/list/01.htm
-
-<td>139.59.174.207:8118</td><td>high-anonymous </td>
 
 http://rebro.weebly.com/txt-lists.html
 
